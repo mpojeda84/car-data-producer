@@ -40,7 +40,7 @@ public class CarDataFileProducer {
             KafkaProducer<String, String> kafkaProducer = getNewDefaultProducer();
 
             Files.lines(path)
-                    .map(this::replaceDateTime)
+                    //.map(this::replaceDateTime)
                     .map(y -> new ProducerRecord<String, String>(topic, y))
                     .forEach(x -> {
                         System.out.println(path.getFileName() + "---" +  x.value());
@@ -104,10 +104,18 @@ public class CarDataFileProducer {
                 .hasArg()
                 .desc("Topic in Mapr Stream")
                 .build();
+        final Option delay = Option.builder("d")
+                .required()
+                .longOpt("delay")
+                .hasArg()
+                .desc("Delay")
+                .build();
+
 
         final Options options = new Options();
         options.addOption(file);
         options.addOption(topic);
+        options.addOption(delay);
         return options;
     }
 
