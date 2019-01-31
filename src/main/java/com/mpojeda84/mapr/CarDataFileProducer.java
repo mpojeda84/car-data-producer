@@ -6,7 +6,6 @@ import org.apache.commons.cli.Options;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ojai.joda.DateTime;
-import org.ojai.joda.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,8 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.function.Consumer;
 
 public class CarDataFileProducer {
 
@@ -41,15 +39,19 @@ public class CarDataFileProducer {
 
             Files.lines(path)
                     //.map(this::replaceDateTime)
-                    .map(y -> new ProducerRecord<String, String>(topic, y))
-                    .forEach(x -> {
-                        System.out.println(path.getFileName() + "---" +  x.value());
-                        try {
-                            Thread.sleep(this.delay);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    .forEach(new Consumer<String>() {
+
+                        int count = 0;
+                        public void accept(String s){
+                            ProducerRecord<String, String> record = new ProducerRecord<>(topic, s);
+                            try {
+                                Thread.sleep(delay);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            kafkaProducer.send(record);
+                            System.out.println( s + " --> count: " + count++);
                         }
-                        kafkaProducer.send(x);
                     });
             kafkaProducer.close();
 
@@ -58,7 +60,7 @@ public class CarDataFileProducer {
         }
     }
 
-    public void produceCarData(int delay, int threadPoolSize) throws IOException, ExecutionException {
+    public void produceCarData(int delay, int threadPoolSize) throws IOException {
 
         this.delay = delay;
         final ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
