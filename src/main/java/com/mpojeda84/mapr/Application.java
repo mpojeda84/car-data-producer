@@ -15,7 +15,7 @@ public class Application {
 
         CarDataFileProducer carDataFileProducer = new CarDataFileProducer(commandLine.getOptionValue("t", null), commandLine.getOptionValue("f", null));
 
-        carDataFileProducer.produceCarData(Integer.parseInt(commandLine.getOptionValue("d", "0")), 10);
+        carDataFileProducer.produceCarData(Integer.parseInt(commandLine.getOptionValue("d", "0")), 25);
 
     }
 
